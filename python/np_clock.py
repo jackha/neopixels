@@ -145,21 +145,14 @@ if __name__ == '__main__':
 
     ani1 = Animation(smiley.pacman_anim)
     ani2 = Animation(smiley.ghost_anim)
+    ani_beer1 = Animation(smiley.beer1_anim)
+    ani_beer2 = Animation(smiley.beer2_anim)
     r1, g1, b1 = 5, 5, 0
     r2, g2, b2 = 5, 0, 5
     x = 0
-    txt = 'hallo janita!!! :-) '
+    txt_coffee = 'coffee time!!! '
 
     while 1:
-        # new_grid1 = ani1.grid_if_update_needed()
-        # if new_grid1 is not None:
-        #     neo.bitmap(0, 0, new_grid1, r1, g1, b1)
-        #     neo.update()
-        # # new_grid2 = ani2.grid_if_update_needed()
-        # if new_grid2 is not None:
-        #     neo.bitmap(8, 0, new_grid2, r2, g2, b2)
-        #     neo.update()
-        #neo.bitmap2(8, 0, tiny_font['a'], r=3)
         t = datetime.datetime.now()
         if t.second % 2 == 0:
             txt = t.strftime('%H.%M')
@@ -175,15 +168,33 @@ if __name__ == '__main__':
             if t.hour % 10 == 9:
                 colors[0] = (3+(t.microsecond) // 50000, 0, 0)
                 
-        neo.wipe_buffer()
-        neo.colorful_text(x, 1, txt, tiny_font, colors)
+        if t.hour == 23 and t.minute == 59:
+            new_grid1 = ani1.grid_if_update_needed()
+            if new_grid1 is not None:
+                neo.bitmap(0, 0, new_grid1, r1, g1, b1)
+            new_grid2 = ani2.grid_if_update_needed()
+            if new_grid2 is not None:
+                neo.bitmap(8, 0, new_grid2, r2, g2, b2)
+        elif t.hour == 1 and t.minute == 30:
+            neo.text(x, 1, txt_coffee, tiny_font, g=10)
+            x -= 1
+            if x < -len(txt_coffee) * 4:
+                x = 17
+        elif t.hour == 4 and t.minute == 0:
+            new_grid1 = ani_beer1.grid_if_update_needed()
+            if new_grid1 is not None:
+                neo.bitmap(0, 0, new_grid1, r=50, g=50, b=0)
+            new_grid2 = ani_beer2.grid_if_update_needed()
+            if new_grid2 is not None:
+                neo.bitmap(8, 0, new_grid2, r=50, g=50, b=0)
+        else:
+            neo.wipe_buffer()
+            neo.colorful_text(0, 1, txt, tiny_font, colors)
+        # seconds bar, ugly...
         # neo.pix(0, 7, 0, 1, 0)
         # for i in range(t.second // 4):
         #     neo.pix(i + 1, 7, 0, 1, 0)
         neo.update()
-        # x -= 1
-        if x < -len(txt) * 4:
-            x = 16
         time.sleep(0.1)
 
     # when the program quits, the arduino is reset again.
