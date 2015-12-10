@@ -35,3 +35,11 @@ You might need to upgrade pyserial. Version 2.6 is old and gives problems.
 To upgrade::
 
     $ sudo pip3.2 install --upgrade pyserial
+
+
+Configuration
+=============
+
+Make a settings.json to configure the com port, it should contain something like::
+
+{"com_port": "/dev/tty.usbmodemfd12111"}

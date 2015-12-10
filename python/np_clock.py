@@ -9,10 +9,11 @@ import smiley
 from animation import Animation
 from font import tiny_font
 import datetime
+import os
+import json
 
 COM_PORT = "/dev/tty.usbmodemfd12111"
 BAUD_RATE = 115200
-#BAUD_RATE = 9600
 COM_TIMEOUT = 1000
 
 Y = 8
@@ -132,16 +133,19 @@ class NeopixelSerial(Serial):
     
 
 if __name__ == '__main__':
+    if os.path.exists('settings.json'):
+        with open('settings.json', 'r') as f:
+            settings = json.load(f)
+            com_port = settings['com_port']
+    else:
+        com_port = COM_PORT
+    baud_rate = BAUD_RATE
+    com_timeout = COM_TIMEOUT
     neo = NeopixelSerial(
-        port=COM_PORT, baudrate=BAUD_RATE, 
-        timeout=COM_TIMEOUT)
-    #msg = bytes([0,0,50,0,0,1,10]) 
-    #connection.write(msg)
-    time.sleep(2)  # allow arduino to restart and initialize
+        port=com_port, baudrate=baud_rate, 
+        timeout=com_timeout)
 
-    # for i in range(100):
-    #     neo.test(r=abs(i-90))
-    #     time.sleep(0.04)
+    time.sleep(2)  # allow arduino to restart and initialize
 
     ani1 = Animation(smiley.pacman_anim)
     ani2 = Animation(smiley.ghost_anim)
