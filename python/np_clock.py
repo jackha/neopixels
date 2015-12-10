@@ -38,6 +38,7 @@ class NeopixelSerial(Serial):
         result = super(NeopixelSerial, self).__init__(*args, **kwargs)
         self.buffer = [0] * NUM_PIX * 3
         self.last_update = time.time()
+        self.last_buffer = None  # used to check if something has changed
         return result
 
     def wipe_buffer(self):
@@ -52,11 +53,15 @@ class NeopixelSerial(Serial):
 
     def update(self):
         """Flush my buffer to neopixels."""
+        if self.last_buffer == self.buffer:
+            # nothing has changed
+            return
         while time.time() < self.last_update + 0.04:
             time.sleep(0.001)
         msg = bytes(self.buffer)
         self.write(msg)
         self.last_update = time.time()
+        self.last_buffer = self.buffer.copy()
 
     def bitmap(self, x, y, arr, r=10, g=0, b=0):
         """'plot' array to x, y"""
@@ -162,12 +167,19 @@ if __name__ == '__main__':
             txt = t.strftime('%H %M')
         colors = [(3, 0, 0), (3, 0, 0), (3, 0, 0), (3, 0, 0), (3, 0, 0)]
         if t.second == 59:
-            colors[4] = (3+(t.microsecond) // 100000, 0, 0)
+            colors[4] = (3+(t.microsecond) // 50000, 0, 0)
+            if t.minute % 10 == 9:
+                colors[3] = (3+(t.microsecond) // 50000, 0, 0)
+            if t.minute == 59:
+                colors[1] = (3+(t.microsecond) // 50000, 0, 0)
+            if t.hour % 10 == 9:
+                colors[0] = (3+(t.microsecond) // 50000, 0, 0)
+                
         neo.wipe_buffer()
         neo.colorful_text(x, 1, txt, tiny_font, colors)
-        neo.pix(0, 7, 0, 1, 0)
-        for i in range(t.second // 4):
-            neo.pix(i + 1, 7, 0, 1, 0)
+        # neo.pix(0, 7, 0, 1, 0)
+        # for i in range(t.second // 4):
+        #     neo.pix(i + 1, 7, 0, 1, 0)
         neo.update()
         # x -= 1
         if x < -len(txt) * 4:
