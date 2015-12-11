@@ -8,7 +8,7 @@ import time
 import smiley
 from animation import Animation
 from font import tiny_font
-# from image import LoFiImage
+from image import LoFiImage
 import datetime
 import os
 import json
@@ -70,6 +70,12 @@ class NeopixelSerial(Serial):
                 self.pix(x + x_pos, y + yi, v*r, v*g, v*b)
                 x_pos -= 1
 
+    def color_bitmap(self, x, y, arr):
+        """plot color bitmap arr: x, y, (r, g, b)"""
+        for yi, yv in enumerate(arr):
+            for xi, xv in enumerate(yv):
+                self.pix(x + xi, y + yi, xv[0], xv[1], xv[2])
+
     def text(self, x, y, text, font, r=5, g=0, b=0):
         x_pos = 0
         size_x = font['size_x']
@@ -119,7 +125,23 @@ class NeopixelSerial(Serial):
         self.buffer[i] = b
         self.buffer[i + 1] = g
         self.buffer[i + 2] = r
-    
+
+    def neo_text(self, nt):
+        """Draw NeoText object"""
+        self.text(
+            nt.x, nt.y, nt.text, nt.font, 
+            r=nt.color[0], g=nt.color[1], b=nt.color[2])
+
+
+class NeoText(object):
+    """Colorful text that lives on the screen"""
+    def __init__(self, text='', color=(5,0,0), x=0, y=1, font=None):
+        self.text = text
+        self.color = color
+        self.x = x
+        self.y = y
+        self.font = font
+
 
 if __name__ == '__main__':
     if os.path.exists('settings.json'):
@@ -145,25 +167,68 @@ if __name__ == '__main__':
     x = 0
     txt_coffee = 'coffee time!!! '
 
-    im = LoFiImage(size_x=X, size_y=Y)
-    import pdb; pdb.set_trace()
+    im_mario = LoFiImage(size_x=X, size_y=Y, multiplier=0.15, gamma_adjust=-30)
+    im_mario.load("mario.png")
+
+    neo_text = []
+    x_pos = [0, 4, 8, 9, 13, 0, 4, 8, 9, 13]
+    y_pos = [1, 1, 1, 1, 1, 9, 9, 9, 9, 9]
+    for i in range(10):
+        neo_text.append(NeoText(color=(3,0,0), x=x_pos[i], y=y_pos[i], font=tiny_font))
+
+    txt = 'aaaaa'
+    old_txt = 'bbbbb'
+
+    t = datetime.datetime.now()
+    t_old_temp = t
+    old_t = t
 
     while 1:
+        t_old_temp = t
         t = datetime.datetime.now()
+        if t.second != t_old_temp.second:
+            old_t = t_old_temp
+
         if t.second % 2 == 0:
             txt = t.strftime('%H.%M')
         else:
             txt = t.strftime('%H %M')
-        colors = [(3, 0, 0), (3, 0, 0), (3, 0, 0), (3, 0, 0), (3, 0, 0)]
-        if t.second == 59:
-            colors[4] = (3+(t.microsecond) // 50000, 0, 0)
-            if t.minute % 10 == 9:
-                colors[3] = (3+(t.microsecond) // 50000, 0, 0)
-            if t.minute == 59:
-                colors[1] = (3+(t.microsecond) // 50000, 0, 0)
-            if t.hour % 10 == 9:
-                colors[0] = (3+(t.microsecond) // 50000, 0, 0)
-                
+        if old_t.second % 2 == 0:
+            old_txt = old_t.strftime('%H.%M')
+        else:
+            old_txt = old_t.strftime('%H %M')
+
+        for i, c in enumerate(old_txt):  # prepare for transitions
+            neo_text[i].text = c
+            neo_text[i].y = 9
+        for i, c in enumerate(txt):
+            neo_text[i + 5].text = c
+            neo_text[i + 5].y = 1
+
+        if t.second == 0:
+            #neo_text[5+4].color = (3+(t.microsecond) // 50000, 0, 0)
+            #neo_text[4].color = (3, 0, 0)
+            new_y = 1 + (1000000 - t.microsecond) // 100000
+            old_y = 1 - t.microsecond // 100000
+            neo_text[5+4].y = new_y
+            neo_text[4].y = old_y
+            
+            if t.minute % 10 == 0:
+                #neo_text[5+3].color = (3+(t.microsecond) // 50000, 0, 0)
+                #neo_text[3].color = (3, 0, 0)
+                neo_text[5+3].y = new_y
+                neo_text[3].y = old_y
+            if t.minute == 0:
+                # neo_text[5+1].color = (3+(t.microsecond) // 50000, 0, 0)
+                # neo_text[1].color = (3, 0, 0)
+                neo_text[5+1].y = new_y
+                neo_text[1].y = old_y
+            if t.hour % 10 == 0:
+                # neo_text[5+0].color = (3+(t.microsecond) // 50000, 0, 0)
+                # neo_text[0].color = (3, 0, 0)
+                neo_text[5+0].y = new_y
+                neo_text[0].y = old_y
+
         if t.hour == 23 and t.minute == 59:
             new_grid1 = ani1.grid_if_update_needed()
             if new_grid1 is not None:
@@ -171,12 +236,21 @@ if __name__ == '__main__':
             new_grid2 = ani2.grid_if_update_needed()
             if new_grid2 is not None:
                 neo.bitmap(8, 0, new_grid2, r2, g2, b2)
+        elif t.minute == 59 and t.second == 59:
+            # mario animation every hour
+            for ii in range(32):
+                bitmap = im_mario.crop_bitmap(
+                    0, -8+ii)
+                neo.color_bitmap(0, 0, bitmap)
+                neo.update()
         elif t.hour == 1 and t.minute == 30:
+            # the infamous coffeetime
             neo.text(x, 1, txt_coffee, tiny_font, g=10)
             x -= 1
             if x < -len(txt_coffee) * 4:
                 x = 17
         elif t.hour == 4 and t.minute == 0:
+            # vier uur = bier uur
             new_grid1 = ani_beer1.grid_if_update_needed()
             if new_grid1 is not None:
                 neo.bitmap(0, 0, new_grid1, r=50, g=50, b=0)
@@ -185,13 +259,8 @@ if __name__ == '__main__':
                 neo.bitmap(8, 0, new_grid2, r=50, g=50, b=0)
         else:
             neo.wipe_buffer()
-            neo.colorful_text(0, 1, txt, tiny_font, colors)
-        # seconds bar, ugly...
-        # neo.pix(0, 7, 0, 1, 0)
-        # for i in range(t.second // 4):
-        #     neo.pix(i + 1, 7, 0, 1, 0)
+            for nt in neo_text:
+                neo.neo_text(nt)
+
         neo.update()
         time.sleep(0.1)
-
-    # when the program quits, the arduino is reset again.
-    #import pdb; pdb.set_trace()

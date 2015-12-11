@@ -6,11 +6,11 @@ your Neopixel (WS2812 array) display! Mine is 16x8 pixels and that is plenty eno
 
 Arduino slave
 
-Python host
+Python host running on python 3.
 
 
-Ubuntu
-======
+Installation Ubuntu
+===================
 
 Install python3 with python3-setuptools.
 
@@ -36,6 +36,13 @@ To upgrade::
 
     $ sudo pip3.2 install --upgrade pyserial
 
+Optional
+--------
+
+For np_movie.py you need additional libraries::
+
+    $ sudo apt-get install python3-imaging
+
 
 Configuration
 =============
@@ -58,8 +65,8 @@ Go to the shell and go to the python dir.
 
 On mac::
 
-    python3 np_clock.py
+    $ python3 np_clock.py
 
-On ubuntu::
+On Ubuntu::
 
-    sudo python3 np_clock.py
+    $ sudo python3 np_clock.py
