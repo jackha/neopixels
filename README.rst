@@ -42,4 +42,24 @@ Configuration
 
 Make a settings.json to configure the com port, it should contain something like::
 
-{"com_port": "/dev/tty.usbmodemfd12111"}
+Mac example::
+
+    {"com_port": "/dev/tty.usbmodemfd12111"}
+
+Ubuntu example::
+
+    {"com_port": "/dev/ttyACM0"}
+
+
+Run
+===
+
+Go to the shell and go to the python dir.
+
+On mac::
+
+    python3 np_clock.py
+
+On ubuntu::
+
+    sudo python3 np_clock.py
