@@ -8,7 +8,6 @@ import time
 import smiley
 from animation import Animation
 from font import tiny_font
-# from image import LoFiImage
 import datetime
 import os
 import json
@@ -144,9 +143,6 @@ if __name__ == '__main__':
     r2, g2, b2 = 5, 0, 5
     x = 0
     txt_coffee = 'coffee time!!! '
-
-    im = LoFiImage(size_x=X, size_y=Y)
-    import pdb; pdb.set_trace()
 
     while 1:
         t = datetime.datetime.now()
