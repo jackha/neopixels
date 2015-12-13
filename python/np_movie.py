@@ -77,11 +77,14 @@ class NeopixelSerial(Serial):
                 self.pix(x + x_pos, y + yi, v*r, v*g, v*b)
                 x_pos -= 1
 
-    def color_bitmap(self, x, y, arr):
+    def color_bitmap(self, x, y, arr, multipler=1.0):
         """plot color bitmap arr: x, y, (r, g, b)"""
         for yi, yv in enumerate(arr):
             for xi, xv in enumerate(yv):
-                self.pix(x + xi, y + yi, xv[0], xv[1], xv[2])
+                self.pix(x + xi, y + yi, 
+                    int(xv[0] * multiplier), 
+                    int(xv[1] * multiplier), 
+                    int(xv[2] * multiplier))
 
     def text(self, x, y, text, font, r=5, g=0, b=0):
         x_pos = 0
@@ -251,7 +254,7 @@ if __name__ == '__main__':
             for ii in range(32):
                 bitmap = im_mario.crop_bitmap(
                     0, -8+ii)
-                neo.color_bitmap(0, 0, bitmap)
+                neo.color_bitmap(0, 0, bitmap, multiplier=MULTIPLIERS_BY_HOUR[t.hour])
                 neo.update()
         elif t.hour == 1 and t.minute == 30:
             # the infamous coffeetime
