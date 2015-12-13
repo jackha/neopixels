@@ -8,6 +8,19 @@ Arduino slave
 
 Python host running on python 3.
 
+Prerequisities
+==============
+
+- git
+
+- works on Ubuntu (preferred), Mac OSX, Raspberry PI 2 (tested with Ubuntu)
+
+
+Arduino
+=======
+
+Arduino IDE 1.6.6 -> Sketch -> Include Library -> Manage libraries. Search for Neopixel by Adafruit, click install. Wow!
+
 
 Installation Ubuntu
 ===================

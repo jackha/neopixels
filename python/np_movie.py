@@ -22,6 +22,13 @@ X = 16
 
 NUM_PIX = X * Y
 
+MULTIPLIERS_BY_HOUR = [
+    0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 
+    0.4, 0.4, 0.7, 1, 1.5, 1.5,
+    1.5, 1.5, 1.5, 1.5, 1.5, 1.0,
+    1, 1, 1, 1, 0.7, 0.7]
+
+
 class NeopixelSerial(Serial):
 
     def __init__(self, *args, **kwargs):
@@ -126,11 +133,13 @@ class NeopixelSerial(Serial):
         self.buffer[i + 1] = g
         self.buffer[i + 2] = r
 
-    def neo_text(self, nt):
+    def neo_text(self, nt, multiplier=1.0):
         """Draw NeoText object"""
         self.text(
             nt.x, nt.y, nt.text, nt.font, 
-            r=nt.color[0], g=nt.color[1], b=nt.color[2])
+            r=int(nt.color[0] * multiplier), 
+            g=int(nt.color[1] * multiplier), 
+            b=int(nt.color[2] * multiplier))
 
 
 class NeoText(object):
@@ -162,12 +171,13 @@ if __name__ == '__main__':
     ani2 = Animation(smiley.ghost_anim)
     ani_beer1 = Animation(smiley.beer1_anim)
     ani_beer2 = Animation(smiley.beer2_anim)
-    r1, g1, b1 = 5, 5, 0
-    r2, g2, b2 = 5, 0, 5
+    # For pac-man animation
+    r1, g1, b1 = 3, 3, 0
+    r2, g2, b2 = 3, 0, 3
     x = 0
     txt_coffee = 'coffee time!!! '
 
-    im_mario = LoFiImage(size_x=X, size_y=Y, multiplier=0.15, gamma_adjust=-30)
+    im_mario = LoFiImage(size_x=X, size_y=Y, multiplier=0.10, gamma_adjust=-30)
     im_mario.load("mario.png")
 
     neo_text = []
@@ -260,7 +270,7 @@ if __name__ == '__main__':
         else:
             neo.wipe_buffer()
             for nt in neo_text:
-                neo.neo_text(nt)
+                neo.neo_text(nt, multiplier=MULTIPLIERS_BY_HOUR[t.hour])
 
         neo.update()
         time.sleep(0.1)
