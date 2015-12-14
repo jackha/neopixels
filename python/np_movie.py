@@ -77,7 +77,7 @@ class NeopixelSerial(Serial):
                 self.pix(x + x_pos, y + yi, v*r, v*g, v*b)
                 x_pos -= 1
 
-    def color_bitmap(self, x, y, arr, multipler=1.0):
+    def color_bitmap(self, x, y, arr, multiplier=1.0):
         """plot color bitmap arr: x, y, (r, g, b)"""
         for yi, yv in enumerate(arr):
             for xi, xv in enumerate(yv):
