@@ -127,8 +127,11 @@ if __name__ == '__main__':
             com_port = settings['com_port']
     else:
         com_port = COM_PORT
+    print("com port: %s" % com_port)
     baud_rate = BAUD_RATE
+    print("baud rate: %s" % baud_rate)
     com_timeout = COM_TIMEOUT
+    print("timeout: %s" % com_timeout)
     neo = NeopixelSerial(
         port=com_port, baudrate=baud_rate, 
         timeout=com_timeout)
