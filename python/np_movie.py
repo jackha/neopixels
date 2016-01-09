@@ -162,12 +162,15 @@ if __name__ == '__main__':
             com_port = settings['com_port']
     else:
         com_port = COM_PORT
+    print("com port: %s" % com_port)
     baud_rate = BAUD_RATE
+    print("baud rate: %s" % baud_rate)
     com_timeout = COM_TIMEOUT
+    print("timeout: %s" % com_timeout)
     neo = NeopixelSerial(
         port=com_port, baudrate=baud_rate, 
         timeout=com_timeout)
-
+    print("sleep 2 seconds, wait for arduino..")
     time.sleep(2)  # allow arduino to restart and initialize
 
     ani1 = Animation(smiley.pacman_anim)
@@ -273,7 +276,8 @@ if __name__ == '__main__':
         else:
             neo.wipe_buffer()
             for nt in neo_text:
-                neo.neo_text(nt, multiplier=MULTIPLIERS_BY_HOUR[t.hour])
+                neo.neo_text(
+                    nt, multiplier=MULTIPLIERS_BY_HOUR[t.hour])
 
         neo.update()
         time.sleep(0.1)

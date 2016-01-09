@@ -38,6 +38,8 @@ void setup() {
   single_pixel.setPixelColor(1, pixels.Color(4,2,0));
   single_pixel.setPixelColor(2, pixels.Color(0,5,0));
   single_pixel.show();
+  pixels.setPixelColor(0, pixels.Color(5,0,0));  // initially let the user know that it all works
+  pixels.show();
   Serial.begin(115200);
   i = 0;
 }
