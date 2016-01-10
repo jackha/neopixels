@@ -23,9 +23,14 @@ X = 16
 
 NUM_PIX = X * Y
 
+# MULTIPLIERS_BY_HOUR = [
+#     0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 
+#     0.4, 0.4, 0.7, 1, 1.5, 1.5,
+#     1.5, 1.5, 1.5, 1.5, 1.5, 1.0,
+#     1, 1, 0.4, 0.4, 0.4, 0.4]
 MULTIPLIERS_BY_HOUR = [
-    0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 
-    0.4, 0.4, 0.7, 1, 1.5, 1.5,
+    0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 
+    0.5, 0.5, 0.7, 1, 1.5, 1.5,
     1.5, 1.5, 1.5, 1.5, 1.5, 1.0,
     1, 1, 1, 1, 0.7, 0.7]
 
@@ -164,9 +169,10 @@ def to_digital_time(dt):
     experiment: divide a day in 65536 parts (2 bytes)
     """
     return 65536 * (
-        dt.hour * 24 * 60 + dt.minute * 60 + 
+        dt.hour * 60 * 60 + dt.minute * 60 + 
         dt.second + dt.microsecond / 1000000) / 86400
 
+    # return 65536 * (dt.hour * 60 * 60 + dt.minute * 60 + dt.second + dt.microsecond / 1000000) / 86400
 
 if __name__ == '__main__':
     if os.path.exists('settings.json'):
@@ -207,7 +213,7 @@ if __name__ == '__main__':
     # tinier_font
     x_pos = [0, 2, 4, 6, 0, 2, 4, 6]
     y_pos = [1, 1, 1, 1, 9, 9, 9, 9]
-    colors = [(3,0,0), (0,3,3)]
+    colors = [(3,0,0), (3,2,0)]
     for i in range(8):
         neo_text.append(
             NeoText(
@@ -248,12 +254,13 @@ if __name__ == '__main__':
             #neo_text[4].color = (3, 0, 0)
             new_y = 1 + (1000000 - t.microsecond) // 100000
             old_y = 1 - t.microsecond // 100000
+
             neo_text[4+3].y = new_y
-            neo_text[4].y = old_y
+            neo_text[3].y = old_y
             
             if t.minute % 10 == 0:
                 neo_text[4+2].y = new_y
-                neo_text[3].y = old_y
+                neo_text[2].y = old_y
             if t.minute == 0:
                 neo_text[4+1].y = new_y
                 neo_text[1].y = old_y
@@ -297,7 +304,11 @@ if __name__ == '__main__':
             if t.second % 2 == 0:
                 neo.pix(0,7,1,0,0)
 
-            neo.text(8, 1, hex(int(digital_time) // 256)[2:], tiny_font, 0, 1, 0)
+            neo.text(7, 1, hex(int(digital_time) // 256)[2:], tiny_font, 0, 1, 0)
+
+            digital_seconds = int(digital_time) & 0b11111111
+            for i in range(8):
+                neo.pix(15 - i, 7, 0, 0, (1+(digital_seconds & (1 << i))//16) if digital_seconds & (1 << i) else 0)
 
         neo.update()
         time.sleep(0.1)
